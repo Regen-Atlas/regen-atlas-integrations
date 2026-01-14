@@ -1,0 +1,19 @@
+{
+  "name": "ra-admin-scripts",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "sync-nfts": "npx tsx sync-impact-certificates.ts",
+    "sync-nfts:dry-run": "npx tsx sync-impact-certificates.ts --dry-run"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "ethers": "^6.13.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "dotenv": "^16.4.7",
+    "tsx": "^4.19.2",
+    "typescript": "^5.5.3"
+  }
+}
