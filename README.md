@@ -1,93 +1,93 @@
-# RA Admin Scripts
+# RA Scripts
 
-Utility scripts for syncing external data sources to the Regen Atlas database.
+Protocol-agnostic integration framework for syncing external data sources to the Regen Atlas database. Supports pluggable connectors (blockchain, REST API, etc.) and deploys sync jobs via Vercel Cron.
 
 ## Setup
 
 1. Install dependencies:
    ```bash
-   cd scripts
+   cd ra-scripts
    npm install
    ```
 
-2. Create a `.env` file with your credentials:
+2. Create a `.env` file (see `.env.example`):
    ```
-   SUPABASE_URL=https://xrgelebuwxauzggmlfnd.supabase.co
-   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+   SUPABASE_URL=https://your-project.supabase.co
+   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
    ATLANTIS_PROTOCOL_ID=uuid-of-atlantis-protocol
    ```
 
-   - Get the service role key from your Supabase project dashboard: Settings → API → Service Role Key
-   - Get the Atlantis protocol ID from the `actions_protocols` table in your database
+3. **Production (recommended)**: Set RPC overrides to avoid rate limits. Base's public RPC is strict.
+   Add to `.env`:
+   ```
+   RPC_BASE_URL=https://base-mainnet.g.alchemy.com/v2/YOUR_ALCHEMY_KEY
+   RPC_ARBITRUM_URL=https://arb-mainnet.g.alchemy.com/v2/YOUR_ALCHEMY_KEY
+   RPC_CELO_URL=https://celo-mainnet.g.alchemy.com/v2/YOUR_ALCHEMY_KEY
+   RPC_OPTIMISM_URL=https://opt-mainnet.g.alchemy.com/v2/YOUR_ALCHEMY_KEY
+   ```
+   Free tiers (Alchemy, Infura) support 20–80 NFTs × 4 chains easily.
 
-## Available Scripts
-
-### sync-impact-certificates.ts
-
-Syncs Impact Certificate NFTs from blockchain collections to the `actions` tables.
-
-**What it does:**
-1. Fetches all NFTs from the Impact Certificate contract across multiple chains (Arbitrum, Base, Celo, Optimism)
-2. Downloads JSON metadata from Arweave for each NFT
-3. Creates records in:
-   - `actions` - The main action record
-   - `actions_sdgs_map` - Links to SDG goals
-   - `actions_actors` & `actions_actors_map` - Project backers
-   - `actions_proofs` - Blockchain proof records linked to the Atlantis protocol
-
-**Usage:**
+## CLI Usage
 
 ```bash
-# Dry run - preview changes without modifying database
-npm run sync-nfts:dry-run
+# Sync Atlantis (Impact Certificates) - all chains
+npx tsx src/cli.ts sync atlantis
 
-# Full sync - all chains
-npm run sync-nfts
+# Sync single chain
+npx tsx src/cli.ts sync atlantis --chain base
 
-# Sync specific chain only
-npx tsx sync-impact-certificates.ts --chain arbitrum
-npx tsx sync-impact-certificates.ts --chain base
-npx tsx sync-impact-certificates.ts --chain celo
-npx tsx sync-impact-certificates.ts --chain optimism
+# Dry run (preview without DB changes)
+npx tsx src/cli.ts sync atlantis --chain arbitrum --dry-run
+
+# Shorthand scripts
+npm run sync:atlantis
+npm run sync:atlantis:dry-run
 ```
-
-**Contract Address:** `0x10098ed90523404ee7450152b266dcbbe32ea97c`
-
-**Supported Chains:**
-- Arbitrum One
-- Base
-- Celo
-- Optimism
 
 ## Project Structure
 
 ```
-scripts/
-├── sync-impact-certificates.ts   # Main entry point
-├── lib/
-│   ├── index.ts                  # Library exports
-│   ├── config.ts                 # Configuration constants
-│   ├── types.ts                  # TypeScript interfaces
-│   ├── utils.ts                  # Utility functions
-│   ├── blockchain.ts             # Blockchain interactions
-│   └── database.ts               # Database operations
-├── package.json
-├── tsconfig.json
-└── README.md
+ra-scripts/
+├── src/
+│   ├── core/
+│   │   ├── types.ts       # Connector interface, ParsedActionData
+│   │   ├── database.ts   # Supabase operations
+│   │   ├── runner.ts     # Orchestrates sync
+│   │   └── sdgs.ts       # SDG name→ID mapping
+│   ├── connectors/
+│   │   ├── atlantis/     # Impact Certificates (blockchain + Arweave)
+│   │   ├── example-rest/ # Template for REST API protocols
+│   │   └── registry.ts   # Maps connector id → Connector
+│   └── cli.ts            # CLI entry point
+├── app/
+│   └── api/cron/sync/    # Vercel Cron endpoint
+├── vercel.json           # Cron schedule (one job per chain)
+└── package.json
 ```
 
-### Module Overview
+## Adding a New Protocol
 
-- **`config.ts`** - Chain configurations, contract address, SDG mappings
-- **`types.ts`** - TypeScript interfaces for NFTs, metadata, actions
-- **`utils.ts`** - Helper functions (URL resolution, metadata parsing, date handling)
-- **`blockchain.ts`** - Ethereum RPC calls to fetch NFTs from contracts
-- **`database.ts`** - Supabase operations for actions, actors, proofs, SDGs
+1. Create `src/connectors/<protocol-id>/` with `index.ts`, `fetcher.ts`, `parser.ts`
+2. Implement the `Connector` interface and register in `registry.ts`
+3. Add env vars (e.g. `MY_PROTOCOL_PROTOCOL_ID`)
+4. Add cron entries to `vercel.json` if needed
+5. Run: `npx tsx src/cli.ts sync <protocol-id> [--chain X]`
 
-## Development
+## Deployment (Vercel)
 
-The scripts use:
-- `ethers.js v6` for blockchain interactions
-- `@supabase/supabase-js` for database operations
-- `tsx` for running TypeScript directly
-- `dotenv` for environment variable loading
+1. Deploy to Vercel
+2. Set env vars: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ATLANTIS_PROTOCOL_ID`
+3. **Required for production**: Set `RPC_BASE_URL`, `RPC_ARBITRUM_URL`, etc. (Alchemy/Infura) – public RPCs rate limit
+4. Optional: `CRON_SECRET` for Authorization header validation
+
+Cron jobs run daily (6:00 UTC) - one per chain to avoid timeouts:
+- arbitrum, base at 6:00
+- celo at 6:05
+- optimism at 6:10
+
+## Legacy Script
+
+The original `sync-impact-certificates.ts` is deprecated. Use:
+```bash
+npx tsx src/cli.ts sync atlantis [--chain X] [--dry-run]
+```

@@ -1,17 +1,27 @@
 {
-  "name": "ra-admin-scripts",
-  "version": "1.0.0",
+  "name": "ra-scripts",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
-    "sync-nfts": "npx tsx sync-impact-certificates.ts",
-    "sync-nfts:dry-run": "npx tsx sync-impact-certificates.ts --dry-run"
+    "sync": "npx tsx src/cli.ts sync",
+    "sync:dry-run": "npx tsx src/cli.ts sync atlantis --dry-run",
+    "sync:atlantis": "npx tsx src/cli.ts sync atlantis",
+    "sync:atlantis:dry-run": "npx tsx src/cli.ts sync atlantis --dry-run",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
-    "ethers": "^6.13.4"
+    "ethers": "^6.13.4",
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "dotenv": "^16.4.7",
     "tsx": "^4.19.2",
     "typescript": "^5.5.3"
