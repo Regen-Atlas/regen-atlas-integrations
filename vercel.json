@@ -1,20 +1,8 @@
 {
   "crons": [
     {
-      "path": "/api/cron/sync?connector=atlantis&chain=arbitrum",
-      "schedule": "0 6 * * *"
-    },
-    {
-      "path": "/api/cron/sync?connector=atlantis&chain=base",
-      "schedule": "0 6 * * *"
-    },
-    {
-      "path": "/api/cron/sync?connector=atlantis&chain=celo",
-      "schedule": "5 6 * * *"
-    },
-    {
-      "path": "/api/cron/sync?connector=atlantis&chain=optimism",
-      "schedule": "10 6 * * *"
+      "path": "/api/cron/sync?connector=atlantis",
+      "schedule": "*/5 * * * *"
     }
   ]
 }

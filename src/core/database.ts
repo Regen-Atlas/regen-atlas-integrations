@@ -7,9 +7,6 @@ import { resolvePlatformId } from "../connectors/atlantis/config";
 import type { ParsedActionData } from "./types";
 import { sanitizeActorName } from "./utils";
 
-/** Maximum actor name length for actions_actors table (DB constraint) */
-const ACTOR_NAME_MAX_LENGTH = 50;
-
 /**
  * Get or create an actor by name.
  * Sanitizes name to fit DB constraint: 2-50 chars.
@@ -27,10 +24,6 @@ export async function getOrCreateActor(
     return null;
   }
 
-  if (sanitized !== actorName) {
-    console.log(`  ℹ️  Actor name truncated to fit constraint (max ${ACTOR_NAME_MAX_LENGTH} chars)`);
-  }
-
   const { data: existing } = await supabase
     .from("actions_actors")
     .select("id")
@@ -42,7 +35,6 @@ export async function getOrCreateActor(
   }
 
   if (dryRun) {
-    console.log(`  [DRY RUN] Would create actor: ${sanitized}`);
     return "dry-run-actor-id";
   }
 
@@ -57,7 +49,6 @@ export async function getOrCreateActor(
     return null;
   }
 
-  console.log(`  ✓ Created actor: ${sanitized}`);
   return newActor.id;
 }
 
@@ -85,23 +76,16 @@ export async function insertAction(
   actionData: ParsedActionData,
   dryRun: boolean
 ): Promise<boolean> {
-  console.log(`\n  📝 Processing: ${actionData.title}`);
-
   const exists = await checkExistingProof(supabase, actionData.proof_metadata_link);
   if (exists) {
-    console.log(`    ⏭️  Skipping - proof already exists in database`);
+    console.log(`  ⏭️  Skipping "${actionData.title}" - proof already exists`);
     return false;
   }
 
   if (dryRun) {
-    console.log(`    [DRY RUN] Would insert action:`, {
-      title: actionData.title,
-      description: actionData.description?.slice(0, 50) + "...",
-      sdgs: actionData.sdg_ids,
-      actor: actionData.actor_name,
-      protocol_id: actionData.protocol_id,
-      platform: actionData.platform_id,
-    });
+    console.log(
+      `  [DRY RUN] Would insert: "${actionData.title}" | ${actionData.sdg_ids.length} SDGs | actor: ${actionData.actor_name || "—"} | platform: ${actionData.platform_id}`
+    );
     return true;
   }
 
@@ -124,7 +108,6 @@ export async function insertAction(
   }
 
   const actionId = action.id;
-  console.log(`    ✓ Created action with ID: ${actionId}`);
 
   if (actionData.sdg_ids.length > 0) {
     const sdgMappings = actionData.sdg_ids.map((sdgId) => ({
@@ -138,8 +121,6 @@ export async function insertAction(
 
     if (sdgError) {
       console.error(`    ⚠️  Failed to insert SDG mappings:`, sdgError);
-    } else {
-      console.log(`    ✓ Linked ${actionData.sdg_ids.length} SDGs`);
     }
   }
 
@@ -155,16 +136,11 @@ export async function insertAction(
 
       if (actorMapError) {
         console.error(`    ⚠️  Failed to link actor:`, actorMapError);
-      } else {
-        console.log(`    ✓ Linked actor: ${actionData.actor_name}`);
       }
     }
   }
 
   const resolvedPlatformId = resolvePlatformId(actionData.platform_id);
-  if (resolvedPlatformId !== actionData.platform_id) {
-    console.log(`    ℹ️  Mapped platform_id: ${actionData.platform_id} → ${resolvedPlatformId}`);
-  }
 
   let proofPayload = {
     action_id: actionId,
@@ -193,9 +169,13 @@ export async function insertAction(
   if (proofError) {
     console.error(`    ⚠️  Failed to insert proof:`, proofError);
   } else {
-    console.log(`    ✓ Added proof record`);
+    const platformNote =
+      resolvedPlatformId !== actionData.platform_id
+        ? ` | platform: ${actionData.platform_id}→${resolvedPlatformId}`
+        : "";
+    console.log(
+      `  ✅ Synced: "${actionData.title}" | id: ${actionId} | ${actionData.sdg_ids.length} SDGs | actor: ${actionData.actor_name || "—"}${platformNote}`
+    );
   }
-
-  console.log(`    ✅ Successfully synced: ${actionData.title}`);
   return true;
 }
