@@ -30,7 +30,7 @@ export interface ChainConfig {
 /** Default public RPCs - use env overrides for production (e.g. Alchemy/Infura) */
 const DEFAULT_RPC: Record<string, string> = {
   arbitrum: "https://arb1.arbitrum.io/rpc",
-  base: "https://1rpc.io/base",
+  base: "https://base.drpc.org",
   celo: "https://forno.celo.org",
   optimism: "https://mainnet.optimism.io",
 };
