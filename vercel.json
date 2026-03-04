@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/sync?connector=atlantis",
-      "schedule": "0 10 * * *"
+      "schedule": "0 6 * * *"
     }
   ]
 }
