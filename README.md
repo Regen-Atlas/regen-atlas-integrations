@@ -85,9 +85,3 @@ Cron jobs run daily (6:00 UTC) - one per chain to avoid timeouts:
 - celo at 6:05
 - optimism at 6:10
 
-## Legacy Script
-
-The original `sync-impact-certificates.ts` is deprecated. Use:
-```bash
-npx tsx src/cli.ts sync atlantis [--chain X] [--dry-run]
-```

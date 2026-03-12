@@ -145,6 +145,7 @@ export function parseNFTMetadata(
     title,
     description,
     main_image: metadata.image || null,
+    geography: null,
     action_start_date: parseDate(startDate),
     action_end_date: parseDate(endDate),
     sdg_ids: sdgIds,

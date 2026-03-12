@@ -44,6 +44,7 @@ export function parseApiResponse(
     title,
     description: raw.description || null,
     main_image: raw.image || null,
+    geography: null,
     action_start_date: parseDate(raw.start_date),
     action_end_date: parseDate(raw.end_date),
     sdg_ids: sdgIds,

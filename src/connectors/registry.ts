@@ -5,6 +5,7 @@
 import type { Connector } from "../core/types";
 import { createAtlantisConnector } from "./atlantis/index";
 import { createExampleRestConnector } from "./example-rest/index";
+import { createSilviConnector } from "./silvi/index";
 
 export function getConnector(id: string): Connector | null {
   switch (id) {
@@ -25,6 +26,16 @@ export function getConnector(id: string): Connector | null {
         return null;
       }
       return createExampleRestConnector(protocolId, apiUrl);
+    }
+
+    case "silvi": {
+      const protocolId = process.env.SILVI_PROTOCOL_ID;
+      const apiUrl = process.env.SILVI_API_URL;
+      if (!protocolId || !apiUrl) {
+        console.error("Missing SILVI_PROTOCOL_ID or SILVI_API_URL");
+        return null;
+      }
+      return createSilviConnector(protocolId, apiUrl);
     }
 
     default:

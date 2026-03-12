@@ -95,6 +95,7 @@ export async function insertAction(
       title: actionData.title,
       description: actionData.description,
       main_image: actionData.main_image,
+      geography: actionData.geography ?? null,
       action_start_date: actionData.action_start_date,
       action_end_date: actionData.action_end_date,
       status: "DRAFT",

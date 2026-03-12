@@ -7,6 +7,8 @@ export interface ParsedActionData {
   title: string;
   description: string | null;
   main_image: string | null;
+  /** PostGIS WKT point: POINT(lng lat), or null */
+  geography: string | null;
   action_start_date: string | null;
   action_end_date: string | null;
   sdg_ids: number[];
