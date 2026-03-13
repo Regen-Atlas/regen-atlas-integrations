@@ -1,4 +1,4 @@
-# RA Scripts
+# Regen Atlas Integrations
 
 Protocol-agnostic integration framework for syncing external data sources to the Regen Atlas database. Supports pluggable connectors (blockchain, REST API, etc.) and deploys sync jobs via Vercel Cron.
 
@@ -6,7 +6,7 @@ Protocol-agnostic integration framework for syncing external data sources to the
 
 1. Install dependencies:
    ```bash
-   cd ra-scripts
+   cd regen-atlas-integrations
    npm install
    ```
 
@@ -47,7 +47,7 @@ npm run sync:atlantis:dry-run
 ## Project Structure
 
 ```
-ra-scripts/
+regen-atlas-integrations/
 ├── src/
 │   ├── core/
 │   │   ├── types.ts       # Connector interface, ParsedActionData

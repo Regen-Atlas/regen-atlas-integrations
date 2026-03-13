@@ -1,6 +1,6 @@
 {
-  "name": "ra-scripts",
-  "version": "2.0.0",
+  "name": "regen-atlas-integrations",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "sync": "npx tsx src/cli.ts sync",
