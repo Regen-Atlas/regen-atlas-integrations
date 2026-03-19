@@ -31,7 +31,7 @@ async function main(): Promise<void> {
 
   if (command !== "sync") {
     console.error("Usage: npx tsx src/cli.ts sync <connector> [--chain <chain>] [--dry-run]");
-    console.error("  connector: atlantis, example-rest, ...");
+    console.error("  connector: atlantis, ecocertain, example-rest, silvi, ...");
     console.error("  chain: arbitrum, base, celo, optimism (atlantis only)");
     process.exit(1);
   }

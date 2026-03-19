@@ -4,6 +4,7 @@
 
 import type { Connector } from "../core/types";
 import { createAtlantisConnector } from "./atlantis/index";
+import { createEcocertainConnector } from "./ecocertain/index";
 import { createExampleRestConnector } from "./example-rest/index";
 import { createSilviConnector } from "./silvi/index";
 
@@ -36,6 +37,15 @@ export function getConnector(id: string): Connector | null {
         return null;
       }
       return createSilviConnector(protocolId, apiUrl);
+    }
+
+    case "ecocertain": {
+      const protocolId = process.env.ECOCERTAIN_PROTOCOL_ID;
+      if (!protocolId) {
+        console.error("Missing ECOCERTAIN_PROTOCOL_ID environment variable");
+        return null;
+      }
+      return createEcocertainConnector(protocolId);
     }
 
     default:

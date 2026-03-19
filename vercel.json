@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/sync?connector=silvi",
       "schedule": "5 3 * * *"
+    },
+    {
+      "path": "/api/cron/sync?connector=ecocertain",
+      "schedule": "10 3 * * *"
     }
   ]
 }

@@ -39,9 +39,10 @@ npx tsx src/cli.ts sync atlantis --chain base
 # Dry run (preview without DB changes)
 npx tsx src/cli.ts sync atlantis --chain arbitrum --dry-run
 
-# Shorthand scripts
-npm run sync:atlantis
-npm run sync:atlantis:dry-run
+# Ecocertain (GainForest ecocerts via Hypercerts API)
+npx tsx src/cli.ts sync ecocertain
+npm run sync:ecocertain
+npm run sync:ecocertain:dry-run
 ```
 
 ## Project Structure
@@ -56,6 +57,7 @@ regen-atlas-integrations/
 │   │   └── sdgs.ts       # SDG name→ID mapping
 │   ├── connectors/
 │   │   ├── atlantis/     # Impact Certificates (blockchain + Arweave)
+│   │   ├── ecocertain/   # GainForest ecocerts (Hypercerts GraphQL)
 │   │   ├── example-rest/ # Template for REST API protocols
 │   │   └── registry.ts   # Maps connector id → Connector
 │   └── cli.ts            # CLI entry point
@@ -71,7 +73,7 @@ regen-atlas-integrations/
 2. Implement the `Connector` interface and register in `registry.ts`
 3. Add env vars (e.g. `MY_PROTOCOL_PROTOCOL_ID`)
 4. Add cron entries to `vercel.json` if needed
-5. Run: `npx tsx src/cli.ts sync <protocol-id> [--chain X]`
+5. Run: `npx tsx src/cli.ts sync <protocol-id> [--chain X]` (e.g. `sync ecocertain`, `sync atlantis --chain base`)
 
 ## Deployment (Vercel)
 
@@ -80,8 +82,8 @@ regen-atlas-integrations/
 3. **Required for production**: Set `RPC_BASE_URL`, `RPC_ARBITRUM_URL`, etc. (Alchemy/Infura) – public RPCs rate limit
 4. Optional: `CRON_SECRET` for Authorization header validation
 
-Cron jobs run daily (6:00 UTC) - one per chain to avoid timeouts:
-- arbitrum, base at 6:00
-- celo at 6:05
-- optimism at 6:10
+Cron jobs run daily (3:00 UTC) - one per connector to avoid timeouts:
+- atlantis at 3:00
+- silvi at 3:05
+- ecocertain at 3:10
 

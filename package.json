@@ -9,6 +9,8 @@
     "sync:atlantis:dry-run": "npx tsx src/cli.ts sync atlantis --dry-run",
     "sync:silvi": "npx tsx src/cli.ts sync silvi",
     "sync:silvi:dry-run": "npx tsx src/cli.ts sync silvi --dry-run",
+    "sync:ecocertain": "npx tsx src/cli.ts sync ecocertain",
+    "sync:ecocertain:dry-run": "npx tsx src/cli.ts sync ecocertain --dry-run",
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
@@ -16,6 +18,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
     "ethers": "^6.13.4",
+    "graphql-request": "^7.0.0",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
