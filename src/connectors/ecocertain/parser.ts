@@ -5,6 +5,7 @@
 import type { ParsedActionData } from "../../core/types";
 import { SDG_NAME_TO_ID } from "../../core/sdgs";
 import type { EcocertainHypercertRaw } from "./fetcher";
+import { geojsonToCentroidWkt } from "./geo";
 
 const ECOCERTAIN_DETAIL_BASE = "https://www.ecocertain.xyz/hypercert";
 const HYPERCERTS_EXPLORER_BASE = "https://app.hypercerts.org/hypercerts";
@@ -75,11 +76,12 @@ export function parseEcocertainHypercert(
     creatorAddress && creatorAddress.length >= 2 ? creatorAddress : null;
 
   const image = imageUrl(meta.image, hypercertId);
+  const geography = geojsonToCentroidWkt(raw.geojson) ?? null;
   return {
     title,
     description: meta.description?.trim() ?? null,
     main_image: image,
-    geography: null,
+    geography,
     action_start_date: secondsToIso(meta.work_timeframe_from),
     action_end_date: secondsToIso(meta.work_timeframe_to),
     sdg_ids: workScopeToSdgIds(meta.work_scope ?? undefined),

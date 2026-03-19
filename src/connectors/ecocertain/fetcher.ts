@@ -3,6 +3,7 @@
  *
  * 1) Resolve hypercert IDs from hyperboard (or env override).
  * 2) For each ID, fetch full hypercert metadata.
+ * 3) Optionally fetch GeoJSON from IPFS metadata for geography centroid.
  */
 
 import { request } from "graphql-request";
@@ -10,6 +11,8 @@ import {
   getGraphqlUrl,
   getHyperboardId,
 } from "./config";
+import { fetchGeojsonForHypercert } from "./geo";
+import type { GeoJSONFeatureCollection } from "./geo";
 
 const THROTTLE_MS = 150;
 
@@ -66,6 +69,8 @@ export interface EcocertainHypercertRaw {
     work_timeframe_to?: string | null;
     contributors?: string[] | null;
   } | null;
+  /** GeoJSON from IPFS (geoJSON property in metadata), attached when uri is present */
+  geojson?: GeoJSONFeatureCollection | null;
 }
 
 interface HypercertByIdResponse {
@@ -140,11 +145,20 @@ export async function fetchHypercertById(
 
   const raw = data[0];
   const id = (raw as { hypercert_id?: string }).hypercert_id ?? hypercertId;
-  return {
+  const withId = {
     ...raw,
     hypercert_id: id,
     hypercertId: id,
   };
+  if (withId.uri) {
+    try {
+      const geojson = await fetchGeojsonForHypercert(withId.uri);
+      withId.geojson = geojson ?? undefined;
+    } catch {
+      // leave geojson undefined on failure
+    }
+  }
+  return withId;
 }
 
 export async function fetchEcocertainHypercerts(

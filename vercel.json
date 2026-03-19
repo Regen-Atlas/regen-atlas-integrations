@@ -10,7 +10,7 @@
     },
     {
       "path": "/api/cron/sync?connector=ecocertain",
-      "schedule": "10 3 * * *"
+      "schedule": "10 14 * * *"
     }
   ]
 }
