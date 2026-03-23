@@ -6,6 +6,7 @@ import type { Connector } from "../core/types";
 import { createAtlantisConnector } from "./atlantis/index";
 import { createEcocertainConnector } from "./ecocertain/index";
 import { createExampleRestConnector } from "./example-rest/index";
+import { createHederaConnector } from "./hedera/index";
 import { createSilviConnector } from "./silvi/index";
 
 export function getConnector(id: string): Connector | null {
@@ -46,6 +47,15 @@ export function getConnector(id: string): Connector | null {
         return null;
       }
       return createEcocertainConnector(protocolId);
+    }
+
+    case "hedera": {
+      const protocolId = process.env.HEDERA_PROTOCOL_ID;
+      if (!protocolId) {
+        console.error("Missing HEDERA_PROTOCOL_ID environment variable");
+        return null;
+      }
+      return createHederaConnector(protocolId);
     }
 
     default:

@@ -12,6 +12,7 @@ export const PLATFORM_ID_MAP: Record<string, string> = {
   optimism: "optimistic-ethereum",
   "optimism-mainnet": "optimistic-ethereum",
   arbitrum: "arbitrum-one",
+  hedera: "hedera-hashgraph",
 };
 
 /** Resolve platform ID to a valid database platforms.id. */

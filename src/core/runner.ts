@@ -3,13 +3,13 @@
  */
 
 import { createClient } from "@supabase/supabase-js";
-import type { Connector, SyncStats } from "./types";
+import type { Connector, ConnectorFetchScope, SyncStats } from "./types";
 import { insertAction } from "./database";
 import { getConnector } from "../connectors/registry";
 
 export interface RunSyncOptions {
   connectorId: string;
-  scope?: { chain?: string };
+  scope?: ConnectorFetchScope;
   dryRun?: boolean;
 }
 

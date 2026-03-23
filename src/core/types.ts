@@ -24,11 +24,18 @@ export interface ParsedActionData {
 /** Raw record from a protocol - type is protocol-specific (e.g. NFTData for Atlantis) */
 export type RawRecord = any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
+/** Optional arguments for connector.fetch (chain, Hedera actor filter, etc.) */
+export interface ConnectorFetchScope {
+  chain?: string;
+  /** Hedera: restrict sync to these issuers (labels resolved in the Hedera connector) */
+  actors?: string[];
+}
+
 /** Connector interface - each protocol implements this */
 export interface Connector {
   id: string;
   protocolId: string;
-  fetch(scope?: { chain?: string }): Promise<RawRecord[]>;
+  fetch(scope?: ConnectorFetchScope): Promise<RawRecord[]>;
   parse(raw: RawRecord): ParsedActionData;
 }
 
