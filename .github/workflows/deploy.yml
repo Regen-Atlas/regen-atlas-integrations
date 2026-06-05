@@ -1,0 +1,84 @@
+name: Deploy
+
+# Deploys the Next.js cron app via the Vercel CLI under a VERCEL_TOKEN (not
+# the native Vercel Git integration). Env vars live in the Vercel project,
+# scoped per environment:
+#   - "Preview"    -> staging Supabase (PR previews)
+#   - "Production" -> production Supabase (main)
+# GitHub only stores VERCEL_TOKEN / VERCEL_ORG_ID / VERCEL_PROJECT_ID.
+#
+# SERVICE-ROLE SAFETY: SUPABASE_SERVICE_ROLE_KEY is a Vercel project env var,
+# NOT a GitHub secret. Set the PROD service-role key ONLY on the Vercel
+# "Production" scope; give "Preview" a staging service-role key (or none).
+# Vercel runs scheduled crons (vercel.json) only on PRODUCTION deployments,
+# so PR previews never fire crons against any database.
+#
+# The `production` job is gated on manual approval via the GitHub
+# `production` environment. See SAFE_VIBE_WORKFLOW.md (Phase 4) for setup.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+concurrency:
+  group: deploy-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  preview:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Lint
+        run: npm run lint --if-present
+      - name: Pull Vercel settings (preview -> staging env vars)
+        run: npx vercel@latest pull --yes --environment=preview --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      - name: Build
+        run: npx vercel@latest build --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy preview
+        run: npx vercel@latest deploy --prebuilt --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+  production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Lint
+        run: npm run lint --if-present
+      - name: Pull Vercel settings (production env vars)
+        run: npx vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      - name: Build
+        run: npx vercel@latest build --prod --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy production
+        run: npx vercel@latest deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
